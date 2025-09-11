@@ -6,6 +6,12 @@ fn div(a: i32, b: i32) -> Option<i32> {
 }
 
 fn main() {
+	if let Some(x) = div(4, 2) {
+		println!("div(4, 2) let: {}", x);
+	}
+	if let None = div(4, 0) {
+		println!("div(4, 0) let: None");
+	}
 	let x = match div(4, 2) {
 		Some(x) => x,
 		None => 0,
