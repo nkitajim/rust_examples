@@ -77,3 +77,43 @@ pub fn copy_recursive(source: &str, target: &str, permission: bool) -> io::Resul
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use std::fs;
+
+	const TEST_DIR: &str = "testdata/tmp_dir";
+	struct TestContext;
+
+	impl TestContext {
+		fn new() -> Self {
+			fs::create_dir_all(TEST_DIR).unwrap();
+			TestContext
+		}
+	}
+
+	impl Drop for TestContext {
+		fn drop(&mut self) {
+			fs::remove_dir_all(TEST_DIR).unwrap();
+		}
+	}
+
+	fn touch_file(file: &str) -> io::Result<()> {
+		let _ = File::create(file)?;
+		Ok(())
+	}
+	#[test]
+	fn test_copy_file() {
+		let _tc = TestContext::new(); // create dir and drop(delete dir)
+		let source = format!("{TEST_DIR}/a");
+		let target = format!("{TEST_DIR}/b");
+
+		let _ = touch_file(&source);
+
+		let _ = copy(&source, &target);
+
+		let path = Path::new(&target);
+		assert!(path.exists());
+	}
+}
