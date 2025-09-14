@@ -1,0 +1,50 @@
+use clap::Parser;
+use temperture::app::cli::Cli;
+
+#[derive(Debug)]
+enum Temperature {
+	Celsius(f64),
+	Fahrenheit(f64),
+	Kelvin(f64),
+}
+
+impl Temperature {
+    fn as_celsius(&self) -> f64 {
+    	match *self {
+    		Temperature::Celsius(f) => f,
+    		Temperature::Fahrenheit(f) => (f - 32.0) * 5.0 / 9.0,
+    		Temperature::Kelvin(f) => f - 273.15,
+    	}
+    }
+    fn to(&self, unit: &str) -> Temperature {
+        let c = self.as_celsius();
+        match unit {
+            "Celsius" => Temperature::Celsius(c),
+            "Fahrenheit" => Temperature::Fahrenheit(c * 9.0 / 5.0 + 32.0),
+            "Kelvin" => Temperature::Kelvin(c + 273.15),
+            _ => panic!("Unsupported unit: {}", unit),
+        }
+    }
+    
+    fn value(&self) -> f64 {
+    	match *self {
+    		Temperature::Celsius(f) => f,
+    		Temperature::Fahrenheit(f) => f,
+    		Temperature::Kelvin(f) => f,
+    	}
+    }
+}
+
+fn main() {
+	let cli = Cli::parse();
+	let t = cli.temperture;
+
+	let input = match cli.input_mode.as_str() {
+		"Celsius" => Temperature::Celsius(t),
+		"Fahrenheit" => Temperature::Fahrenheit(t),
+		"Kelvin" => Temperature::Kelvin(t),
+		_ => todo!(),
+	};
+	let output = input.to(&cli.output_mode);
+	println!("{}", output.value());
+}
